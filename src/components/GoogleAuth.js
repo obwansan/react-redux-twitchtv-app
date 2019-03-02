@@ -31,7 +31,9 @@ class GoogleAuth extends React.Component {
   // Call the appropriate action creator any time our Auth state changes, according to our gapi library
   onAuthChange = isSignedIn => {
     if (isSignedIn) {
-      this.props.signIn();
+      // When we call the action creator, pass in the ID of the user who has signed in.
+      // HOW ARE THE SIGNIN AND SIGNOUT ACTION CREATORS MADE AVAILABLE ON THE PROPS OBJECT?
+      this.props.signIn(this.auth.currentUser.get().getId());
     } else {
       this.props.signOut();
     }
@@ -82,5 +84,6 @@ const actionCreators = {
   signOut
 }
 
-// 
+// Passing an object containing the action creators rather than a mapDispatchToProps function.
+// React-Redux magically dispatches the action creators to authReducer
 export default connect(mapStateToProps, actionCreators)(GoogleAuth);
