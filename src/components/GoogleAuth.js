@@ -26,6 +26,7 @@ componentDidMount() {
   });
 }
 
+// Call the appropriate action creator any time our Auth state changes, according to our gapi library
 onAuthChange = isSignedIn => {
   if (isSignedIn) {
     this.props.signIn();

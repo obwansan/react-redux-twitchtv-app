@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
+import authReducer from './authReducer';
 
 export default combineReducers({
-  // Have to have a dummy reducer otherwise redux complains
-  replaceMe: () => 'blahblah',
+  auth: authReducer,
 });
