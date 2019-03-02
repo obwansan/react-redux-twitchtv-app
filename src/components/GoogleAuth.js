@@ -5,69 +5,82 @@ import { signIn, signOut } from '../actions';
 
 // Wiring up the Google API library
 class GoogleAuth extends React.Component {
-  state = { isSignedIn: null };
 
-componentDidMount() {
-  window.gapi.load('client:auth2', () => {
-    // init() performs an asynchronous network request to google's api server to initilaize our client.
-    // init() returns a promise that tells us when the client library has been successfully initialized.
-    window.gapi.client.init({
-      clientId: '932843054106-v4oavsjhupt4n3vo3m6gobm026cu91ji.apps.googleusercontent.com',
-      scope: 'email'
-      // The callback passed to the .then is automatically invoked after the client library 
-      // has been successfully initialized and the gapi libary is ready to go.
-    }).then(() => {
-      // Get a reference to the 'auth' object after it is initialized
-      this.auth = window.gapi.auth2.getAuthInstance();
-      // Figure out if the user is currently signed in
-      this.setState({ isSignedIn: this.auth.isSignedIn.get()} );
-      this.auth.isSignedIn.listen(this.onAuthChange);
+  componentDidMount() {
+    window.gapi.load('client:auth2', () => {
+      // init() performs an asynchronous network request to google's api server to initilaize our client.
+      // init() returns a promise that tells us when the client library has been successfully initialized.
+      window.gapi.client.init({
+        clientId: '932843054106-v4oavsjhupt4n3vo3m6gobm026cu91ji.apps.googleusercontent.com',
+        scope: 'email'
+        // The callback passed to the .then is automatically invoked after the client library 
+        // has been successfully initialized and the gapi libary is ready to go.
+      }).then(() => {
+        // Get a reference to the 'auth' object after it is initialized
+        this.auth = window.gapi.auth2.getAuthInstance();
+        // Update our Auth state in our redux store
+        this.onAuthChange(this.auth.isSignedIn.get());
+        // Listen for changes in the current user's sign-in state.
+        // GAPI docs: listen() passes true to this function when the user signs in, 
+        // and false when the user signs out.
+        this.auth.isSignedIn.listen(this.onAuthChange);
+      });
     });
-  });
-}
-
-// Call the appropriate action creator any time our Auth state changes, according to our gapi library
-onAuthChange = isSignedIn => {
-  if (isSignedIn) {
-    this.props.signIn();
-  } else {
-    this.props.signOut();
   }
-};
 
-onSignInClick = () => {
-  this.auth.signIn();
-};
+  // Call the appropriate action creator any time our Auth state changes, according to our gapi library
+  onAuthChange = isSignedIn => {
+    if (isSignedIn) {
+      this.props.signIn();
+    } else {
+      this.props.signOut();
+    }
+  };
 
-onSignOutClick = () => {
-  this.auth.signOut();
-};
+  onSignInClick = () => {
+    this.auth.signIn();
+  };
 
-renderAuthButton() {
-  if (this.state.isSignedIn === null) {
-    return null;
-  } else if (this.state.isSignedIn) {
-    return (
-      <button onClick={this.onSignOutClick} className="ui red google button">
-        <i className="google icon" />
-        Sign Out
-      </button>
-    )
-  } else {
-    return (
-      <button onClick={this.onSignInClick} className="ui red google button">
-        <i className="google icon" />
-        Sign In with Google
-      </button>
-    )
+  onSignOutClick = () => {
+    this.auth.signOut();
+  };
+
+  renderAuthButton() {
+    if (this.props.isSignedIn === null) {
+      return null;
+    } else if (this.props.isSignedIn) {
+      return (
+        <button onClick={this.onSignOutClick} className="ui red google button">
+          <i className="google icon" />
+          Sign Out
+        </button>
+      )
+    } else {
+      return (
+        <button onClick={this.onSignInClick} className="ui red google button">
+          <i className="google icon" />
+          Sign In with Google
+        </button>
+      )
+    }
+  }
+
+  render() {
+    // Print their authentication status on the screen
+    return <div>{this.renderAuthButton()}</div>
   }
 }
 
-render() {
-  // Print their authentication status on the screen
-  return <div>{this.renderAuthButton()}</div>
-}
+const mapStateToProps = (state) => {
+  return {
+    isSignedIn: state.auth.isSignedIn
+   }
 }
 
-// null will be replaced by mapStateTo Props
-export default connect(null, {signIn, signOut})(GoogleAuth);
+const actionCreators = {
+  signIn,
+  signOut
+}
+
+// 
+export default connect(mapStateToProps, actionCreators)(GoogleAuth);
