@@ -1,4 +1,7 @@
 import React from 'react';
+import { connect } from 'react-redux';
+// Don't need to put the file name on the path end if the folder contains just one file called index.js
+import { signIn, signOut } from '../actions';
 
 // Wiring up the Google API library
 class GoogleAuth extends React.Component {
@@ -23,8 +26,12 @@ componentDidMount() {
   });
 }
 
-onAuthChange = () => {
-  this.setState({ isSignedIn: this.auth.isSignedIn.get() });
+onAuthChange = isSignedIn => {
+  if (isSignedIn) {
+    this.props.signIn();
+  } else {
+    this.props.signOut();
+  }
 };
 
 onSignInClick = () => {
@@ -61,4 +68,5 @@ render() {
 }
 }
 
-export default GoogleAuth;
+// null will be replaced by mapStateTo Props
+export default connect(null, {signIn, signOut})(GoogleAuth);
