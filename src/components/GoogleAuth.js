@@ -32,7 +32,6 @@ class GoogleAuth extends React.Component {
   onAuthChange = isSignedIn => {
     if (isSignedIn) {
       // When we call the action creator, pass in the ID of the user who has signed in.
-      // HOW ARE THE SIGNIN AND SIGNOUT ACTION CREATORS MADE AVAILABLE ON THE PROPS OBJECT?
       this.props.signIn(this.auth.currentUser.get().getId());
     } else {
       this.props.signOut();
@@ -84,6 +83,14 @@ const actionCreators = {
   signOut
 }
 
-// Passing an object containing the action creators rather than a mapDispatchToProps function.
-// React-Redux magically dispatches the action creators to authReducer
+// HOW ARE THE SIGNIN AND SIGNOUT ACTION CREATORS MADE AVAILABLE ON THE PROPS OBJECT?
+// React-Redux docs: "The return of the mapDispatchToProps function will be merged to your connected 
+// component as props. You may call them directly to dispatch its action."
+
+// The mapDispatchToProps function returns a plain object containing keys that will become separate 
+// props for your own component. The key's values are functions that dispatch an action when called.
+
+// When defining mapDispatchToProps as an object rather than as a function, as we do here,
+// it works the same way, except that the dispatching happens magically/implicitly rather than 
+// programmatically (i.e. don't have to code it out).
 export default connect(mapStateToProps, actionCreators)(GoogleAuth);
